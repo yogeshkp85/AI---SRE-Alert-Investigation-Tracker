@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alert Tracker Form - AI SRE Alert Investigation Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #001F3F 0%, #003366 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-placeholder {
+            width: 100px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            flex-shrink: 0;
+        }
+        
+        .header-content h1 {
+            font-size: 20px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        
+        .header-content p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #444444;
+            padding-bottom: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+        
+        label.required::after {
+            content: ' *';
+            color: #DC3545;
+        }
+        
+        input[type="text"],
+        input[type="time"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #003366;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.3s;
+            background-color: #FFFFFF;
+            color: #001F3F;
+        }
+        
+        input[type="text"]:focus,
+        input[type="time"]:focus,
+        input[type="date"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #001F3F;
+            box-shadow: 0 0 0 3px rgba(0, 31, 63, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #001F3F 0%, #003366 100%);
+            color: white;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 31, 63, 0.2);
+        }
+        
+        .btn-reset {
+            background: #F5F5F5;
+            color: #001F3F;
+            border: 1px solid #003366;
+        }
+        
+        .btn-reset:hover {
+            background: #E8E8E8;
+        }
+        
+        .message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .pin-section {
+            background: #F5F5F5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #001F3F;
+        }
+        
+        .pin-section label {
+            margin-bottom: 8px;
+        }
+        
+        .pin-section small {
+            color: #666666;
+            font-size: 12px;
+            display: block;
+            margin-top: 5px;
+        }
+        
+        .form-disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Success Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid #444444;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .modal-message {
+            font-size: 16px;
+            color: #cccccc;
+            margin-bottom: 30px;
+        }
+
+        .modal-btn {
+            background: linear-gradient(135deg, #001F3F 0%, #003366 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 31, 63, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Alert Tracker Form</h1>
+            <p>AI - SRE Alert Investigation Tracker</p>
+        </div>
+        
+        <div class="content">
+            <div id="message" class="message"></div>
+            
+            <form id="incidentForm">
+                <!-- PIN Authentication -->
+                <div class="pin-section">
+                    <label for="pin" class="required">🔐 PIN Authentication</label>
+                    <input type="password" id="pin" name="pin" placeholder="Enter your shift PIN" required>
+                    <small>Early Shift: 1111 | Main Shift: 2222 | Night Shift: 3333</small>
+                </div>
+                
+                <div id="formContent" class="form-disabled">
+                    <!-- Section 1: Basic Information -->
+                    <div class="section">
+                        <div class="section-title">📅 Basic Information</div>
+                        
+                        <div class="form-group">
+                            <label for="date" class="required">Date</label>
+                            <input type="date" id="date" name="Date" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="shift" class="required">Shift</label>
+                                <select id="shift" name="Shift" required>
+                                    <option value="">--Select Shift--</option>
+                                    <option value="S1">S1 (6 AM - 11 AM)</option>
+                                    <option value="S2">S2 (11 AM - 11 PM)</option>
+                                    <option value="On Call">On Call (11 PM - 6 AM)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="incidentCategory" class="required">Incident Category</label>
+                                <select id="incidentCategory" name="Incident Category" required>
+                                    <option value="">--Select Category--</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="shiftLead" class="required">Shift Lead</label>
+                                <select id="shiftLead" name="Shift Lead" required>
+                                    <option value="">--Select Lead--</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="timeSlot" class="required">Time Slot</label>
+                            <select id="timeSlot" name="Time Slot" required>
+                                <option value="">--Select Time Slot--</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 2: Incident Details -->
+                    <div class="section">
+                        <div class="section-title">🚨 Incident Details</div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="alertTime" class="required">Alert Report Time</label>
+                                <input type="time" id="alertTime" name="Alert Report Time" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="assignedTo" class="required">Assigned To</label>
+                                <select id="assignedTo" name="Assigned To" required>
+                                    <option value="">--Select Team Member--</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="alert" class="required">Alert (Description)</label>
+                            <textarea id="alert" name="Alert" placeholder="Copy-paste alert details..." required></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 3: Reference Numbers -->
+                    <div class="section">
+                        <div class="section-title">📌 Reference Information</div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ritm">RITM</label>
+                                <input type="text" id="ritm" name="RITM" placeholder="Reference number">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="stip">STIP Incident</label>
+                                <input type="text" id="stip" name="STIP Incident" placeholder="Reference number">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="raised">Incident Raised</label>
+                            <input type="text" id="raised" name="Incident Raised" placeholder="Reference number">
+                        </div>
+                    </div>
+                    
+                    <!-- Section 4: Communication -->
+                    <div class="section">
+                        <div class="section-title">💬 Communication Details</div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="text" id="email" name="Email" placeholder="Email subject/details">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="dbGiant">DB Giant</label>
+                                <input type="text" id="dbGiant" name="DB Giant" placeholder="Subject from email">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="typeComms">Type Comms</label>
+                                <input type="text" id="typeComms" name="Type Comms" placeholder="Communication type">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="incidentComms">Incident Comms</label>
+                                <input type="text" id="incidentComms" name="Incident Comms" placeholder="Incident communication">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 5: Status & Actions -->
+                    <div class="section">
+                        <div class="section-title">✅ Batch & Actions</div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="batchReportable">Batch Reportable</label>
+                                <select id="batchReportable" name="Batch Reportable">
+                                    <option value="">--Select--</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="finalComms">Final Comms</label>
+                                <input type="text" id="finalComms" name="Final Comms" placeholder="Final communication reference">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cr">CR (Change Request)</label>
+                                <select id="cr" name="CR">
+                                    <option value="">--Select--</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="implementation">Implementation</label>
+                                <select id="implementation" name="Implementation">
+                                    <option value="">--Select--</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 6: Verification & Follow-up -->
+                    <div class="section">
+                        <div class="section-title">📋 Verification & Follow-up</div>
+                        
+                        <div class="form-group">
+                            <label for="verification">Verification</label>
+                            <textarea id="verification" name="Verification" placeholder="Verification details..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="issueComm">Issue Communication (If required)</label>
+                            <textarea id="issueComm" name="Issue Communication" placeholder="Issue communication details..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="additionalTask">Additional Task/Improvement</label>
+                            <textarea id="additionalTask" name="Additional Task/Improvement" placeholder="Additional tasks, improvements, or notes..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="status" class="required">Status</label>
+                            <select id="status" name="Status" required>
+                                <option value="">--Select--</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Submitting incident...</p>
+                </div>
+                
+                <div class="button-group">
+                    <button type="submit" class="btn-submit">✓ Submit Incident</button>
+                    <button type="reset" class="btn-reset">🔄 Clear Form</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">✅</div>
+            <div class="modal-title">Submission Successful!</div>
+            <div class="modal-message" id="modalMessage">Your alert has been submitted successfully.</div>
+            <button class="modal-btn" onclick="closeSuccessModal()">Continue</button>
+        </div>
+    </div>
+    
+    <script>
+        const VALID_PINS = {
+            '1111': { shift: 'S1', name: 'Early Shift' },
+            '2222': { shift: 'S2', name: 'Main Shift' },
+            '3333': { shift: 'On Call', name: 'Night Shift' }
+        };
+        
+        const TIME_SLOTS = {
+            'S1': ['7-8 AM', '8-9 AM', '9-10 AM', '10-11 AM'],
+            'S2': ['11-12 PM', '12-1 PM', '1-2 PM', '2-3 PM', '3-4 PM', '4-5 PM', '5-6 PM', '6-7 PM', '7-8 PM', '8-9 PM', '9-10 PM'],
+            'On Call': ['10 PM-7 AM']
+        };
+        
+        const INCIDENT_CATEGORIES = ['P1', 'P2', 'P3', 'P4'];
+        
+        let currentPin = null;
+        let teamMembers = [];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeForm();
+            fetchTeamMembers();
+            setDefaultDate();
+        });
+        
+        function setDefaultDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+        }
+        
+        function initializeForm() {
+            document.getElementById('pin').addEventListener('change', validatePin);
+            document.getElementById('shift').addEventListener('change', updateTimeSlots);
+            document.getElementById('incidentForm').addEventListener('submit', handleSubmit);
+        }
+        
+        function validatePin() {
+            const pin = document.getElementById('pin').value;
+            const message = document.getElementById('message');
+            
+            if (!pin) {
+                message.textContent = '⚠️ Please enter PIN';
+                message.className = 'message info';
+                document.getElementById('formContent').classList.add('form-disabled');
+                currentPin = null;
+                return;
+            }
+            
+            if (VALID_PINS[pin]) {
+                currentPin = pin;
+                document.getElementById('formContent').classList.remove('form-disabled');
+                document.getElementById('shift').value = VALID_PINS[pin].shift;
+                updateTimeSlots();
+                message.textContent = `✓ Authenticated as ${VALID_PINS[pin].name}`;
+                message.className = 'message success';
+            } else {
+                currentPin = null;
+                document.getElementById('formContent').classList.add('form-disabled');
+                message.textContent = '❌ Invalid PIN';
+                message.className = 'message error';
+            }
+        }
+        
+        function updateTimeSlots() {
+            const shift = document.getElementById('shift').value;
+            const timeSlotSelect = document.getElementById('timeSlot');
+            
+            timeSlotSelect.innerHTML = '<option value="">--Select Time Slot--</option>';
+            
+            if (shift && TIME_SLOTS[shift]) {
+                TIME_SLOTS[shift].forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot;
+                    option.textContent = slot;
+                    timeSlotSelect.appendChild(option);
+                });
+            }
+        }
+        
+        async function fetchTeamMembers() {
+            try {
+                const response = await fetch('http://localhost:5000/api/teams');
+                const data = await response.json();
+                
+                // New API returns simple array: {"members": ["Name1", "Name2", ...]}
+                teamMembers = data.members || [];
+                
+                populateDropdowns();
+            } catch (error) {
+                console.error('Error fetching teams:', error);
+                // Fallback to default team members
+                teamMembers = ['Raj Kumar', 'Priya Singh', 'Amit Patel', 'Vikram Joshi', 
+                              'Neha Sharma', 'Rohan Verma', 'Anjali Menon', 'Arjun Gupta',
+                              'Deepak Kumar', 'Pooja Nair', 'Sanjay Reddy', 'Tina Desai',
+                              'Varun Malhotra', 'Yash Pandey', 'Zara Khan', 'Aditya Rao'];
+                populateDropdowns();
+            }
+        }
+        
+        function populateDropdowns() {
+            const sortedTeams = [...teamMembers].sort();
+            
+            // Populate Incident Category dropdown
+            const categorySelect = document.getElementById('incidentCategory');
+            if (categorySelect) {
+                INCIDENT_CATEGORIES.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+            }
+            
+            // Populate Shift Lead dropdown
+            const leadSelect = document.getElementById('shiftLead');
+            sortedTeams.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member;
+                option.textContent = member;
+                leadSelect.appendChild(option);
+            });
+            
+            // Populate Assigned To dropdown
+            const assignedSelect = document.getElementById('assignedTo');
+            sortedTeams.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member;
+                option.textContent = member;
+                assignedSelect.appendChild(option);
+            });
+        }
+        
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            if (!currentPin) {
+                showMessage('❌ [AUTH-001] Please authenticate with valid PIN', 'error');
+                return;
+            }
+            
+            // Validate required fields (including new fields)
+            const requiredFields = ['date', 'shift', 'incidentCategory', 'shiftLead', 'timeSlot', 'alertTime', 'alert', 'assignedTo', 'status'];
+            for (const field of requiredFields) {
+                const element = document.getElementById(field);
+                if (!element || !element.value) {
+                    const fieldLabel = field.replace(/([A-Z])/g, ' $1').trim();
+                    showMessage(`❌ [VALIDATION-001] Missing required field: ${fieldLabel}`, 'error');
+                    return;
+                }
+            }
+            
+            // Collect form data
+            const formData = new FormData(document.getElementById('incidentForm'));
+            const incident = {};
+            
+            formData.forEach((value, key) => {
+                if (key !== 'pin') {
+                    incident[key] = value;
+                }
+            });
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('incidentForm').style.opacity = '0.5';
+            document.getElementById('incidentForm').style.pointerEvents = 'none';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/incidents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(incident)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage(`✓ Incident #${result.row_number} submitted successfully!`, 'success');
+                    document.getElementById('incidentForm').reset();
+                    setDefaultDate();
+                    validatePin();
+                    
+                    // Show success modal
+                    document.getElementById('modalMessage').textContent = `✓ Alert #${result.row_number} submitted successfully!`;
+                    document.getElementById('successModal').classList.add('active');
+                } else {
+                    // Handle specific error codes
+                    const errorCode = result.error || 'UNKNOWN';
+                    let errorMessage = '';
+                    
+                    if (errorCode.includes('Missing required field')) {
+                        errorMessage = `❌ [VALIDATION-002] ${errorCode}`;
+                    } else if (errorCode.includes('Failed to write')) {
+                        errorMessage = `❌ [EXCEL-001] Failed to save incident to database. Please check: 1) Excel file is not open in another program, 2) File has write permissions, 3) Disk space available`;
+                    } else if (errorCode.includes('Connection')) {
+                        errorMessage = `❌ [NETWORK-001] Connection error: ${errorCode}`;
+                    } else if (errorCode.includes('Unauthorized')) {
+                        errorMessage = `❌ [AUTH-002] Unauthorized access`;
+                    } else {
+                        errorMessage = `❌ [ERROR-${Math.floor(Math.random() * 999)}] ${errorCode}`;
+                    }
+                    
+                    showMessage(errorMessage, 'error');
+                }
+            } catch (error) {
+                let errorMessage = '';
+                
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage = `❌ [NETWORK-002] Cannot connect to server. Please ensure backend is running on http://localhost:5000`;
+                } else if (error.message.includes('JSON')) {
+                    errorMessage = `❌ [PARSE-001] Invalid response from server`;
+                } else {
+                    errorMessage = `❌ [NETWORK-003] Connection error: ${error.message}`;
+                }
+                
+                showMessage(errorMessage, 'error');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('incidentForm').style.opacity = '1';
+                document.getElementById('incidentForm').style.pointerEvents = 'auto';
+            }
+        }
+        
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type}`;
+            window.scrollTo(0, 0);
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrator - SRE Alert Tracker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5568d3;
+            --secondary: #764ba2;
+            --success: #48bb78;
+            --danger: #f56565;
+            --warning: #ed8936;
+            --dark: #1a202c;
+            --light: #f7fafc;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            padding: 20px;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Login Screen */
+        .login-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #1a1a1a;
+            z-index: 2000;
+        }
+
+        .login-wrapper.hidden {
+            display: none;
+        }
+
+        .login-card {
+            background: #2a2a2a;
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 50px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            border: 1px solid #444444;
+        }
+
+        .login-card h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .login-card p {
+            color: #cccccc;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #444444;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: #333333;
+            color: #ffffff;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #3a3a3a;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: #c6f6d5;
+            color: #22543d;
+            display: block;
+        }
+
+        .message.error {
+            background: #fed7d7;
+            color: #742a2a;
+            display: block;
+        }
+
+        /* Admin Panel */
+        .admin-wrapper {
+            display: none;
+        }
+
+        .admin-wrapper.active {
+            display: block;
+        }
+
+        .navbar {
+            background: #2a2a2a;
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid #444444;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .navbar-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            color: #ffffff;
+        }
+
+        .btn-logout {
+            padding: 10px 20px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            flex-wrap: wrap;
+            border: 1px solid #444444;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: #333333;
+            border: 2px solid #444444;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #cccccc;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .tab-btn:hover {
+            background: #404040;
+            color: #ffffff;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .tab-content {
+            display: none;
+            background: #2a2a2a;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid #444444;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-content h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .btn-add {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(72, 187, 120, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            color: #ffffff;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #444444;
+            font-size: 14px;
+            color: #ffffff;
+        }
+
+        tbody tr:hover {
+            background: #333333;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            margin-right: 5px;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .btn-edit:hover {
+            background: #90cdf4;
+        }
+
+        .btn-delete {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .btn-delete:hover {
+            background: #fc8181;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #2a2a2a;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid #444444;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+            color: #ffffff;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999999;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #ffffff;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn-save {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 12px;
+            background: #edf2f7;
+            color: var(--dark);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background: #e2e8f0;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #444444;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: #333333;
+            color: #ffffff;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #3a3a3a;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #444444;
+            border-radius: 10px;
+            font-size: 14px;
+            min-height: 100px;
+            resize: vertical;
+            transition: all 0.3s;
+            background: #333333;
+            color: #ffffff;
+            font-family: inherit;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #3a3a3a;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        /* Success Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 5000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .success-modal {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid #444444;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .success-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .success-message {
+            font-size: 16px;
+            color: #cccccc;
+            margin-bottom: 30px;
+        }
+
+        .success-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .success-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-wrapper" id="loginWrapper">
+        <div class="login-card">
+            <h1>🔐 Admin Access</h1>
+            <p>Enter your PIN to access the admin panel</p>
+            <div class="form-group">
+                <label>Admin PIN</label>
+                <input type="password" id="adminPin" placeholder="Enter PIN" onkeypress="if(event.key==='Enter') adminLogin()">
+            </div>
+            <button class="btn btn-primary" onclick="adminLogin()">Login</button>
+            <div id="loginMessage" class="message"></div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-wrapper" id="adminWrapper">
+        <div class="container">
+            <div class="navbar">
+                <h1>📊 Administrator</h1>
+                <div class="navbar-right">
+                    <span id="adminUser" style="font-weight: 600; color: var(--dark);">Admin</span>
+                    <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('incidents')">📋 Incidents</button>
+                <button class="tab-btn" onclick="switchTab('team')">👥 Team Members</button>
+                <button class="tab-btn" onclick="switchTab('audit')">📊 Audit Log</button>
+            </div>
+
+            <!-- Incidents Tab -->
+            <div id="incidents" class="tab-content active">
+                <h3>Manage Incidents</h3>
+                <button class="btn-add" onclick="openAddIncidentModal()">➕ Add New Incident</button>
+                <div id="incidentsMessage" class="message"></div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Shift</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Alert</th>
+                            <th>Assigned To</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incidentsBody">
+                        <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Team Members Tab -->
+            <div id="team" class="tab-content">
+                <h3>Manage Team Members</h3>
+                <button class="btn-add" onclick="openAddTeamModal()">➕ Add Team Member</button>
+                <div id="teamMessage" class="message"></div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teamBody">
+                        <tr><td colspan="4" style="text-align: center;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Audit Log Tab -->
+            <div id="audit" class="tab-content">
+                <h3>Audit Log</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Incident ID</th>
+                            <th>Field Changed</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditBody">
+                        <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Team Member Modal -->
+    <div id="addTeamModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Team Member</h2>
+                <button class="close-btn" onclick="closeModal('addTeamModal')">✕</button>
+            </div>
+            <form>
+                <input type="hidden" id="editTeamIndex" value="">
+                <div class="form-group">
+                    <label>Name *</label>
+                    <input type="text" id="teamName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="teamEmail">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" id="teamPhone">
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn-save" onclick="saveTeamMember()">Add Member</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal('addTeamModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let isAuthenticated = false;
+        let teamMembers = [];
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('loginWrapper').classList.remove('hidden');
+            document.getElementById('adminWrapper').classList.remove('active');
+        });
+
+        async function adminLogin() {
+            const pin = document.getElementById('adminPin').value;
+            if (!pin) {
+                showMessage('Please enter PIN', 'error', 'loginMessage');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ pin })
+                });
+
+                if (response.ok) {
+                    isAuthenticated = true;
+                    document.getElementById('loginWrapper').style.display = 'none';
+                    document.getElementById('adminWrapper').classList.add('active');
+                    document.getElementById('adminPin').value = '';
+                    loadTeamMembers();
+                    loadIncidents();
+                    loadAuditLog();
+                } else {
+                    showMessage('❌ Invalid PIN', 'error', 'loginMessage');
+                }
+            } catch (error) {
+                showMessage('❌ Connection error', 'error', 'loginMessage');
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch('http://localhost:5000/api/admin/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                isAuthenticated = false;
+                document.getElementById('adminWrapper').classList.remove('active');
+                document.getElementById('loginWrapper').style.display = 'flex';
+                document.getElementById('adminPin').value = '';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        async function loadTeamMembers() {
+            try {
+                const response = await fetch('http://localhost:5000/api/admin/teams', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                teamMembers = data.members || [];
+
+                const tbody = document.getElementById('teamBody');
+                if (teamMembers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No team members</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = teamMembers.map((member, idx) => `
+                    <tr>
+                        <td>${member.name}</td>
+                        <td>${member.email || '--'}</td>
+                        <td>${member.phone || '--'}</td>
+                        <td>
+                            <button class="btn-edit" onclick="editTeamMember(${idx})">Edit</button>
+                            <button class="btn-delete" onclick="deleteTeamMember('${member.name}')">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                showMessage('❌ Error loading team members', 'error', 'teamMessage');
+            }
+        }
+
+        function editTeamMember(idx) {
+            const member = teamMembers[idx];
+            document.getElementById('teamName').value = member.name;
+            document.getElementById('teamEmail').value = member.email || '';
+            document.getElementById('teamPhone').value = member.phone || '';
+            document.getElementById('editTeamIndex').value = idx;
+            document.getElementById('addTeamModal').querySelector('h2').textContent = 'Edit Team Member';
+            document.getElementById('addTeamModal').querySelector('.btn-save').textContent = 'Update Member';
+            document.getElementById('addTeamModal').classList.add('active');
+        }
+
+        function openAddTeamModal() {
+            document.getElementById('editTeamIndex').value = '';
+            document.getElementById('teamName').value = '';
+            document.getElementById('teamEmail').value = '';
+            document.getElementById('teamPhone').value = '';
+            document.getElementById('addTeamModal').querySelector('h2').textContent = 'Add Team Member';
+            document.getElementById('addTeamModal').querySelector('.btn-save').textContent = 'Add Member';
+            document.getElementById('addTeamModal').classList.add('active');
+        }
+
+        async function saveTeamMember() {
+            const name = document.getElementById('teamName').value.trim();
+            const email = document.getElementById('teamEmail').value.trim();
+            const phone = document.getElementById('teamPhone').value.trim();
+            const editIndex = document.getElementById('editTeamIndex').value;
+
+            if (!name) {
+                showMessage('❌ Name is required', 'error', 'teamMessage');
+                return;
+            }
+
+            try {
+                if (editIndex !== '') {
+                    // Edit
+                    const oldName = teamMembers[editIndex].name;
+                    const response = await fetch(`http://localhost:5000/api/admin/teams/${encodeURIComponent(oldName)}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ name, email, phone })
+                    });
+
+                    if (response.ok) {
+                        closeModal('addTeamModal');
+                        showSuccessModal('✓ Team Member Updated', 'Team member has been updated successfully!');
+                        setTimeout(() => {
+                            loadTeamMembers();
+                        }, 1500);
+                    } else {
+                        showMessage('❌ Error updating member', 'error', 'teamMessage');
+                    }
+                } else {
+                    // Add
+                    const response = await fetch('http://localhost:5000/api/admin/teams', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ name, email, phone })
+                    });
+
+                    if (response.ok) {
+                        closeModal('addTeamModal');
+                        showSuccessModal('✓ Team Member Added', 'Team member has been added successfully!');
+                        setTimeout(() => {
+                            loadTeamMembers();
+                        }, 1500);
+                    } else {
+                        showMessage('❌ Error adding member', 'error', 'teamMessage');
+                    }
+                }
+            } catch (error) {
+                showMessage('❌ Connection error', 'error', 'teamMessage');
+            }
+        }
+
+        async function deleteTeamMember(name) {
+            if (!confirm(`Delete ${name}?`)) return;
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/admin/teams/${encodeURIComponent(name)}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    showMessage('✓ Team member deleted', 'success', 'teamMessage');
+                    loadTeamMembers();
+                } else {
+                    showMessage('❌ Error deleting member', 'error', 'teamMessage');
+                }
+            } catch (error) {
+                showMessage('❌ Connection error', 'error', 'teamMessage');
+            }
+        }
+
+        async function loadIncidents() {
+            try {
+                const response = await fetch('http://localhost:5000/api/incidents');
+                const data = await response.json();
+                const tbody = document.getElementById('incidentsBody');
+
+                if (!data.incidents || data.incidents.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No incidents</td></tr>';
+                    return;
+                }
+
+                // Store incidents globally for edit/delete operations
+                currentIncidents = data.incidents;
+
+                tbody.innerHTML = data.incidents.map((incident, idx) => {
+                    const rowNum = incident['_row_number'] || (idx + 2);
+                    return `
+                    <tr>
+                        <td>${incident['Date'] || '--'}</td>
+                        <td>${incident['Shift'] || '--'}</td>
+                        <td>${incident['Incident Category'] || '--'}</td>
+                        <td>${incident['Status'] || '--'}</td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${incident['Alert'] || '--'}</td>
+                        <td>${incident['Assigned To'] || '--'}</td>
+                        <td>
+                            <button class="btn-edit" onclick="editIncident(${idx})">Edit</button>
+                            <button class="btn-delete" onclick="deleteIncident(${idx}, ${rowNum})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                }).join('');
+            } catch (error) {
+                showMessage('❌ Error loading incidents', 'error', 'incidentsMessage');
+            }
+        }
+
+        async function loadAuditLog() {
+            try {
+                const response = await fetch('http://localhost:5000/api/admin/audit-log', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                const tbody = document.getElementById('auditBody');
+
+                if (!data.entries || data.entries.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No audit entries</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.entries.map(entry => `
+                    <tr>
+                        <td>${entry.timestamp}</td>
+                        <td>${entry.user}</td>
+                        <td>${entry.action}</td>
+                        <td>${entry.incident_id}</td>
+                        <td>${entry.field_changed || '--'}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading audit log:', error);
+            }
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function showMessage(text, type, elementId) {
+            const msg = document.getElementById(elementId);
+            msg.textContent = text;
+            msg.className = `message ${type}`;
+            setTimeout(() => {
+                msg.className = 'message';
+            }, 5000);
+        }
+
+        function showSuccessModal(title, message) {
+            const overlay = document.getElementById('successOverlay');
+            const titleEl = document.getElementById('successTitle');
+            const messageEl = document.getElementById('successMessage');
+            
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            overlay.classList.add('active');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successOverlay').classList.remove('active');
+        }
+
+        function openAddIncidentModal() {
+            alert('Add incident feature coming soon');
+        }
+
+        let currentIncidents = [];
+        let editingIncidentIndex = -1;
+
+        function editIncident(idx) {
+            try {
+                fetch('http://localhost:5000/api/incidents')
+                    .then(r => r.json())
+                    .then(data => {
+                        currentIncidents = data.incidents || [];
+                        if (idx < currentIncidents.length) {
+                            const incident = currentIncidents[idx];
+                            editingIncidentIndex = idx;
+                            openEditIncidentModal(incident, idx);
+                        } else {
+                            showMessage('❌ [ADMIN-001] Incident not found', 'error', 'incidentsMessage');
+                        }
+                    })
+                    .catch(err => {
+                        showMessage(`❌ [NETWORK-001] Failed to load incident: ${err.message}`, 'error', 'incidentsMessage');
+                    });
+            } catch (error) {
+                showMessage(`❌ [ERROR-001] ${error.message}`, 'error', 'incidentsMessage');
+            }
+        }
+
+        function openEditIncidentModal(incident, idx) {
+            // Remove existing modal if any
+            const existingModal = document.getElementById('editIncidentModal');
+            if (existingModal) existingModal.remove();
+            
+            const modal = document.createElement('div');
+            modal.id = 'editIncidentModal';
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Edit Incident</h2>
+                        <button class="close-btn" onclick="document.getElementById('editIncidentModal').remove()">✕</button>
+                    </div>
+                    <form id="editIncidentForm">
+                        <input type="hidden" id="editIncidentIndex" value="${idx}">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="editDate" value="${incident['Date'] || ''}" style="background: #333333; color: #ffffff; border: 2px solid #444444;">
+                        </div>
+                        <div class="form-group">
+                            <label>Shift</label>
+                            <select id="editShift" style="background: #333333; color: #ffffff; border: 2px solid #444444;">
+                                <option value="S1" ${incident['Shift'] === 'S1' ? 'selected' : ''}>S1</option>
+                                <option value="S2" ${incident['Shift'] === 'S2' ? 'selected' : ''}>S2</option>
+                                <option value="On Call" ${incident['Shift'] === 'On Call' ? 'selected' : ''}>On Call</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="editCategory" style="background: #333333; color: #ffffff; border: 2px solid #444444;">
+                                <option value="P1" ${incident['Incident Category'] === 'P1' ? 'selected' : ''}>P1</option>
+                                <option value="P2" ${incident['Incident Category'] === 'P2' ? 'selected' : ''}>P2</option>
+                                <option value="P3" ${incident['Incident Category'] === 'P3' ? 'selected' : ''}>P3</option>
+                                <option value="P4" ${incident['Incident Category'] === 'P4' ? 'selected' : ''}>P4</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="editStatus" style="background: #333333; color: #ffffff; border: 2px solid #444444;">
+                                <option value="Pending" ${incident['Status'] === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="In Progress" ${incident['Status'] === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                <option value="Completed" ${incident['Status'] === 'Completed' ? 'selected' : ''}>Completed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Alert</label>
+                            <textarea id="editAlert" style="background: #333333; color: #ffffff; border: 2px solid #444444;">${incident['Alert'] || ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Assigned To</label>
+                            <input type="text" id="editAssignedTo" value="${incident['Assigned To'] || ''}" style="background: #333333; color: #ffffff; border: 2px solid #444444;">
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="btn-save" onclick="saveEditedIncident()">Save Changes</button>
+                            <button type="button" class="btn-cancel" onclick="document.getElementById('editIncidentModal').remove()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        async function saveEditedIncident() {
+            try {
+                const idx = parseInt(document.getElementById('editIncidentIndex').value);
+                const incident = currentIncidents[idx];
+                
+                if (!incident) {
+                    showMessage('❌ [ADMIN-002] Incident data not found', 'error', 'incidentsMessage');
+                    return;
+                }
+                
+                // Update incident with form values
+                const updated = {
+                    ...incident,
+                    'Date': document.getElementById('editDate').value,
+                    'Shift': document.getElementById('editShift').value,
+                    'Incident Category': document.getElementById('editCategory').value,
+                    'Status': document.getElementById('editStatus').value,
+                    'Alert': document.getElementById('editAlert').value,
+                    'Assigned To': document.getElementById('editAssignedTo').value
+                };
+
+                // Get the row number from the incident
+                const rowNumber = incident['_row_number'] || (idx + 2);
+
+                const response = await fetch(`http://localhost:5000/api/admin/incidents/${rowNumber}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(updated)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('editIncidentModal').remove();
+                    showSuccessModal('✓ Incident Updated', 'Incident has been updated successfully!');
+                    setTimeout(() => {
+                        loadIncidents();
+                    }, 1500);
+                } else {
+                    showMessage(`❌ [ADMIN-003] Error updating incident: ${result.error}`, 'error', 'incidentsMessage');
+                }
+            } catch (error) {
+                showMessage(`❌ [NETWORK-002] Connection error: ${error.message}`, 'error', 'incidentsMessage');
+            }
+        }
+
+        async function deleteIncident(idx, rowNumber) {
+            if (!confirm('Are you sure you want to delete this incident?')) return;
+
+            try {
+                console.log(`Delete called with idx=${idx}, rowNumber=${rowNumber}`);
+                
+                // Get incident from currentIncidents
+                const incident = currentIncidents[idx];
+                if (!incident) {
+                    console.error(`Incident not found at index ${idx}`);
+                    showMessage('❌ [ADMIN-004] Incident not found', 'error', 'incidentsMessage');
+                    return;
+                }
+
+                console.log(`Incident found:`, incident);
+                console.log(`Deleting row: ${rowNumber}`);
+
+                // Send DELETE request
+                const response = await fetch(`http://localhost:5000/api/admin/incidents/${rowNumber}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                console.log(`Delete response status: ${response.status}`);
+                const result = await response.json();
+                console.log(`Delete response:`, result);
+
+                if (response.ok) {
+                    showSuccessModal('✓ Incident Deleted', 'Incident has been deleted successfully!');
+                    
+                    // Notify Dashboard to refresh (via localStorage)
+                    try {
+                        localStorage.setItem('dashboardRefresh', Date.now().toString());
+                        console.log('Dashboard refresh notification sent');
+                    } catch (e) {
+                        console.log('Could not notify Dashboard');
+                    }
+                    
+                    // Reload incidents after deletion
+                    setTimeout(() => {
+                        console.log('Reloading incidents...');
+                        loadIncidents();
+                    }, 1500);
+                } else {
+                    showMessage(`❌ [ADMIN-005] Error deleting incident: ${result.error}`, 'error', 'incidentsMessage');
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                showMessage(`❌ [NETWORK-003] Connection error: ${error.message}`, 'error', 'incidentsMessage');
+            }
+        }
+    </script>
+
+    <!-- Success Modal -->
+    <div id="successOverlay" class="modal-overlay">
+        <div class="success-modal">
+            <div class="success-icon">✅</div>
+            <div class="success-title" id="successTitle">Success!</div>
+            <div class="success-message" id="successMessage">Operation completed successfully.</div>
+            <button class="success-btn" onclick="closeSuccessModal()">Continue</button>
+        </div>
+    </div>
+</body>
+</html>

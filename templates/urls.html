@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI - SRE Alert Investigation Tracker - URLs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #cccccc;
+            margin-bottom: 5px;
+        }
+
+        .header .subtitle {
+            font-size: 14px;
+            color: #999999;
+        }
+
+        .urls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .url-card {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            border: 1px solid #444444;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .url-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+            border-color: #667eea;
+        }
+
+        .url-card.dashboard {
+            border-left: 5px solid #001F3F;
+        }
+
+        .url-card.form {
+            border-left: 5px solid #48bb78;
+        }
+
+        .url-card.admin {
+            border-left: 5px solid #f56565;
+        }
+
+        .url-card-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .url-card-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .url-card-description {
+            font-size: 14px;
+            color: #cccccc;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .url-section {
+            margin-bottom: 20px;
+        }
+
+        .url-label {
+            font-size: 12px;
+            color: #999999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .url-box {
+            background: #1a1a1a;
+            border: 1px solid #444444;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #00ff00;
+            word-break: break-all;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+
+        .copy-btn.copied {
+            background: #48bb78;
+        }
+
+        .quick-access {
+            background: linear-gradient(135deg, #001F3F 0%, #003366 100%);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .quick-access h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .quick-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .quick-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .quick-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .info-box {
+            background: #1a1a1a;
+            border-left: 4px solid #f39c12;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 30px;
+            font-size: 13px;
+            color: #cccccc;
+        }
+
+        .info-box strong {
+            color: #f39c12;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .urls-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .url-box {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .copy-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🚀 AI - SRE Alert Investigation Tracker</h1>
+            <p>Quick Access URLs</p>
+            <p class="subtitle">All interfaces and endpoints in one place</p>
+        </div>
+
+        <!-- Quick Access Buttons -->
+        <div class="quick-access">
+            <h2>⚡ Quick Access</h2>
+            <div class="quick-buttons">
+                <a href="http://localhost:5000/dashboard.html" class="quick-btn" target="_blank">📊 Dashboard</a>
+                <a href="http://localhost:5000/form.html" class="quick-btn" target="_blank">📋 Form</a>
+                <a href="http://localhost:5000/admin.html" class="quick-btn" target="_blank">👤 Admin</a>
+                <a href="http://localhost:5000/api/health" class="quick-btn" target="_blank">🏥 Health</a>
+            </div>
+        </div>
+
+        <!-- URL Cards -->
+        <div class="urls-grid">
+            <!-- Dashboard Card -->
+            <div class="url-card dashboard">
+                <div class="url-card-icon">📊</div>
+                <div class="url-card-title">AI - SRE Alert Investigation Tracker</div>
+                <div class="url-card-description">
+                    Live incident monitoring with real-time metrics, charts, and advanced filtering capabilities.
+                </div>
+                <div class="url-section">
+                    <div class="url-label">URL</div>
+                    <div class="url-box">
+                        <span>http://localhost:5000/dashboard.html</span>
+                        <button class="copy-btn" onclick="copyToClipboard('http://localhost:5000/dashboard.html', this)">Copy</button>
+                    </div>
+                </div>
+                <div class="url-section">
+                    <div class="url-label">Features</div>
+                    <div style="font-size: 12px; color: #cccccc;">
+                        ✓ Real-time metrics<br>
+                        ✓ Advanced filters<br>
+                        ✓ Charts & trends<br>
+                        ✓ Incident details
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Card -->
+            <div class="url-card form">
+                <div class="url-card-icon">📋</div>
+                <div class="url-card-title">Alert Tracker Form</div>
+                <div class="url-card-description">
+                    Create and submit new alert reports with comprehensive form fields and validation.
+                </div>
+                <div class="url-section">
+                    <div class="url-label">URL</div>
+                    <div class="url-box">
+                        <span>http://localhost:5000/form.html</span>
+                        <button class="copy-btn" onclick="copyToClipboard('http://localhost:5000/form.html', this)">Copy</button>
+                    </div>
+                </div>
+                <div class="url-section">
+                    <div class="url-label">Features</div>
+                    <div style="font-size: 12px; color: #cccccc;">
+                        ✓ New alert entry<br>
+                        ✓ Form validation<br>
+                        ✓ PIN authentication<br>
+                        ✓ Error handling
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Card -->
+            <div class="url-card admin">
+                <div class="url-card-icon">👤</div>
+                <div class="url-card-title">Administrator</div>
+                <div class="url-card-description">
+                    Administrative panel for managing incidents, team members, and audit logs.
+                </div>
+                <div class="url-section">
+                    <div class="url-label">URL</div>
+                    <div class="url-box">
+                        <span>http://localhost:5000/admin.html</span>
+                        <button class="copy-btn" onclick="copyToClipboard('http://localhost:5000/admin.html', this)">Copy</button>
+                    </div>
+                </div>
+                <div class="url-section">
+                    <div class="url-label">Features</div>
+                    <div style="font-size: 12px; color: #cccccc;">
+                        ✓ Incident management<br>
+                        ✓ Team management<br>
+                        ✓ Audit logs<br>
+                        ✓ Secure authentication
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+            <strong>ℹ️ Important Information:</strong><br>
+            • Server: <strong>http://localhost:5000</strong><br>
+            • Database: <strong>incident-tracker.xlsx</strong><br>
+            • All data is stored in Excel format for easy access and backup
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓ Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+
+        // Log available URLs on page load
+        console.log('🚀 AI - SRE Alert Investigation Tracker URLs:');
+        console.log('📊 Dashboard: http://localhost:5000/dashboard.html');
+        console.log('📋 Form: http://localhost:5000/form.html');
+        console.log('👤 Admin: http://localhost:5000/admin.html');
+        console.log('🏥 Health: http://localhost:5000/api/health');
+    </script>
+</body>
+</html>
